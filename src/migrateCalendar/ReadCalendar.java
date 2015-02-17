@@ -93,6 +93,7 @@ public class ReadCalendar
 			long countLines=0;
 			int countrGroupErrors=0;
 			int countInvalidMailAddress=0;
+			int countOrganizerChanges=0;
 			
 			File outputFile=new File(fileLocation+"/newCalendar.ics");//creates a new calendar file
 			try 
@@ -129,6 +130,7 @@ public class ReadCalendar
 								line = '\t'+line.substring(75);
 							}
 							count++;
+							countOrganizerChanges++;
 						}
 						else if(line.contains("invalid:nomail"))
 						{
@@ -149,6 +151,7 @@ public class ReadCalendar
 						line=readCal.readLine();
 					}
 				}
+				JOptionPane.showMessageDialog(null,(countOrganizerChanges)+" "+oldOrganizerName+"'s appointment(s) has(have) been changed!");
 				JOptionPane.showMessageDialog(null,countrGroupErrors+" group errors were successfully fixed!!!");
 				JOptionPane.showMessageDialog(null,countInvalidMailAddress+" invalid mail addresses were successfully fixed!!!");
 				System.out.println("Number of lines = "+countLines);

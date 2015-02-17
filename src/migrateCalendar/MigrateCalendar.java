@@ -53,7 +53,6 @@ public class MigrateCalendar
 				int appointmentChanges =calendarReader.fixCalendar();
 				if(appointmentChanges>=0)
 				{
-					JOptionPane.showMessageDialog(null,(appointmentChanges+1)+" "+oldOrganizerName+"'s appointment(s) has(have) been changed!");
 					JOptionPane.showMessageDialog(null, "The new file has been saved in the same location"
 							+ "\n of the selected calendar!");
 				}
