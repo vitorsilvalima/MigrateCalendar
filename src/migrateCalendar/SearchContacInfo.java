@@ -1,7 +1,8 @@
 package migrateCalendar;
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Scanner;
+
 /**
  * The script goes through a contact file(name+mail) and searches for a specific name.
  * If it finds the specified name, it returns the person's mail address.
@@ -17,7 +18,8 @@ public class SearchContacInfo
 	/**
 	 * has a File object that refers to a specific contact file
 	 */
-	private File contactFile;
+	//private File contactFile;
+	private InputStream contactFile;
 	/**
 	 * Creates a SearchContactInfor object and instatiates its variables
 	 * @param contactLocation location of the contact file
@@ -49,12 +51,13 @@ public class SearchContacInfo
 	 */
 	private void setContactFile()
 	{
-		contactFile=new File(contactFileLocation);
+		//contactFile=new File(contactFileLocation);
+		contactFile=MigrateCalendar.class.getResourceAsStream("./"+contactFileLocation);
 	}
 	/**
 	 * Gets the contact mail of the specified person's name
 	 * @param contactName
-	 * @return the person's email or none@langara.bc.ca if it does not find 
+	 * @return the person's email or noneFound@langara.bc.ca if it does not find 
 	 * @throws FileNotFoundException
 	 */
 	public String getContactMail(String contactName) throws FileNotFoundException
@@ -72,7 +75,7 @@ public class SearchContacInfo
 		}
 		if(contactMail.contains(""))
 		{
-			contactMail="123Vitorteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeenone@langara.bc.ca";
+			contactMail="noneFound@langara.bc.ca";
 		}
 		scanContactList.close();
 		return contactMail;

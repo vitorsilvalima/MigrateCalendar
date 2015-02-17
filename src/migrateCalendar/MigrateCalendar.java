@@ -5,8 +5,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 /**
- * MigrateCalendar class handles all the input information and its validation 
+ * MigrateCalendar has as a goal to fix some of the major calendar issues such as:
+ * -Organizer issue
+ * -Group errors
+ * -Invalid mail addresses
  * @author Vitor Silva Lima
+ * @since 08/02/2015
  */
 public class MigrateCalendar 
 {
@@ -46,7 +50,7 @@ public class MigrateCalendar
 				File cal1 = chooser.getSelectedFile();
 				fileLocation=cal1.getParent();
 				ReadCalendar calendarReader = new ReadCalendar(cal1, oldOrganizerName,oldOrganizer, newOrganizer,fileLocation);
-				int appointmentChanges =calendarReader.lookForOrganizer();
+				int appointmentChanges =calendarReader.fixCalendar();
 				if(appointmentChanges>=0)
 				{
 					JOptionPane.showMessageDialog(null,(appointmentChanges+1)+" "+oldOrganizerName+"'s appointment(s) has(have) been changed!");

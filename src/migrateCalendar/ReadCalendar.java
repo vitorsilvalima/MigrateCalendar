@@ -132,7 +132,7 @@ public class ReadCalendar
 						}
 						else if(line.contains("invalid:nomail"))
 						{
-							SearchContacInfo searchContact = new SearchContacInfo("newContact.txt");
+							SearchContacInfo searchContact = new SearchContacInfo("./newContact.txt");
 							line = line.replace("invalid:nomail", searchContact.getContactMail(getContactName(line)));
 							if(line.length()>=75)
 							{
