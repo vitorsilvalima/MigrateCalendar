@@ -117,8 +117,7 @@ public class ReadCalendar
 						else if(line.contains("invalid:nomail"))
 						{
 							//String invalidString=line.replace("invalid:nomail","mail")
-							//File contactFile = new File("/newContact.txt");
-							InputStream contactFile =this.getClass().getClassLoader().getResourceAsStream("newContact.txt");
+							File contactFile = new File("newContact.txt");
 							Scanner scan = new Scanner(contactFile);
 							int index1 = line.indexOf('"');
 							int index2 = line.indexOf('"', index1+1);
