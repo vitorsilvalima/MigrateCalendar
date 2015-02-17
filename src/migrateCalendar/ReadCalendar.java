@@ -1,25 +1,22 @@
 package migrateCalendar;
 import java.io.BufferedReader;
-import java.util.Scanner;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-
 import javax.swing.JOptionPane;
 /**
  * This class is responsible for searching and changing a calendar's oldOrganizerMail
- * @author vsilvalima
- *
+ * @author Vitor Silva Lima
+ * @since 08/02/2015
  */
 public class ReadCalendar 
 {
-	private File cal1;
+	private File calendarFile;
 	private String oldOrganizerMail;
-	private String newOrganizer;
+	private String newOrganizerMail;
 	private String oldOrganizerName;
 	private String fileLocation;
 	/**
@@ -27,62 +24,84 @@ public class ReadCalendar
 	 * @param cal the old calendar file
 	 * @param oldOrganizerName the oldOrganizerMail name
 	 * @param oldOrganizerMail the organizer's mail address
-	 * @param newOrganizer the new organizer's mail address
+	 * @param newOrganizerMail the new organizer's mail address
 	 * @param fileLocation the file location of the original Calendar file
 	 */
-	public ReadCalendar(File cal, String oldOrganizerName,String oldOrganizerMail,String newOrganizer,String fileLocation)
+	public ReadCalendar(File cal, String oldOrganizerName,String oldOrganizerMail,String newOrganizerMail,String fileLocation)
 	{
-		cal1=cal;
+		calendarFile=cal;
 		this.oldOrganizerMail=oldOrganizerMail;
-		this.newOrganizer=newOrganizer;
+		this.newOrganizerMail=newOrganizerMail;
 		this.oldOrganizerName=oldOrganizerName;
 		this.fileLocation=fileLocation;
 	}
+	/**
+	 * Sets the organizer's name
+	 * @param oldOrganizerName the organizer's name
+	 */
 	public void setOldOrganizerName(String oldOrganizerName)
 	{
 		this.oldOrganizerName=oldOrganizerName;
 	}
-
+	/**
+	 * Sets the Calendar file
+	 * @param cal the calendar file object
+	 */
 	public void setCalendar(File cal)
 	{
-		cal1=cal;
+		calendarFile=cal;
 	}
+	/**
+	 * Sets the file location of the new calendar
+	 * @param fileLocation the location for the new calendar file
+	 */
 	public void setFileLocation(String fileLocation)
 	{
 		this.fileLocation=fileLocation;
 	}
+	/**
+	 * Sets the old organizer's mail address
+	 * @param oldOrganizerMail the old organizer's mail address
+	 */
 	public void setOrganizer(String oldOrganizerMail)
 	{
 		this.oldOrganizerMail=oldOrganizerMail;
 	}
-	public void setNewOrganizer(String newOrganizer)
+	/**
+	 * Sets new organizer's mail address
+	 * @param newOrganizerMail
+	 */
+	public void setNewOrganizer(String newOrganizerMail)
 	{
-		this.newOrganizer=newOrganizer;
+		this.newOrganizerMail=newOrganizerMail;
 	}
 	/**
-	 * 
-	 * @return
+	 * Fixes the calendar by going through each line and searching by group errors and invalid mail addresses. Furthermore, it also fixes organizer's issues
+	 * @return -1 if the calendar or old organizer mail is equal to null
 	 */
-	public  int lookForOrganizer()
+	public  int fixCalendar()
 	{
 		int count=-1;
-		if(cal1!=null && oldOrganizerMail!=null )
+		if(calendarFile!=null && oldOrganizerMail!=null )
 		{
-			//Scanner readCal=null;
 			FileReader fis = null;
 			BufferedReader readCal=null;
 			BufferedWriter output=null;
-			File outputFile=new File(fileLocation+"/newCalendar.ics");
+			/*
+			 * Counters
+			 */
+			long countLines=0;
+			int countrGroupErrors=0;
+			int countInvalidMailAddress=0;
+			
+			File outputFile=new File(fileLocation+"/newCalendar.ics");//creates a new calendar file
 			try 
 			{
-				fis = new FileReader(cal1);
+				fis = new FileReader(calendarFile);
 				readCal = new BufferedReader(fis);
 				FileWriter fWriter = new FileWriter(outputFile,false);
 				output=new BufferedWriter(fWriter);
 				String line=readCal.readLine();
-				long countLines=0;
-				int countrGroupErrors=0;
-				int countInvalidMailAddress=0;
 				while(line!=null)
 				{
 					countLines++;
@@ -94,59 +113,35 @@ public class ReadCalendar
 							line=readCal.readLine();
 							countLines++;
 						}while(!(line.contains("ATTENDEE") || line.contains("PRIORITY") || line.contains("CLASS")));
+						count++;
 					}
 					else
 					{
 						if(checkOrganizer(line))
 						{
-							String changeOrg =changeOrganizer();
-							if(changeOrg.length()>75)
+							line=changeOrganizer();
+							if(line.length()>75)
 							{
-								output.write(changeOrg.substring(0, 74));
+								output.write(line.substring(0, 75));
 								output.newLine();
-								line=readCal.readLine();
+								readCal.readLine();
 								countLines++;
-								line = '\t'+changeOrg.substring(75);
-							}
-							else
-							{
-								line=changeOrganizer();
+								line = '\t'+line.substring(75);
 							}
 							count++;
 						}
 						else if(line.contains("invalid:nomail"))
 						{
-							//String invalidString=line.replace("invalid:nomail","mail")
-							File contactFile = new File("newContact.txt");
-							Scanner scan = new Scanner(contactFile);
-							int index1 = line.indexOf('"');
-							int index2 = line.indexOf('"', index1+1);
-							if(index1!=-1 && index2!=-1)
+							SearchContacInfo searchContact = new SearchContacInfo("newContact.txt");
+							line = line.replace("invalid:nomail", searchContact.getContactMail(getContactName(line)));
+							if(line.length()>=75)
 							{
-								String search = line.substring(index1+1, index2);
-								boolean find=false;
-								while(scan.hasNextLine() && !find)
-								{
-									String info= scan.nextLine();
-									if(info.contains(search))
-									{
-										find=true;
-										line=line.replace("invalid:nomail",scan.nextLine());
-									}
-								}
-								scan.close();
-								if(!find)
-								{
-									line=line.replace("invalid:nomail","none@langara.bc.ca");
-								}
-								if(line.length()>=75)
-								{
-									output.write(line.substring(0, 74));
-									output.newLine();
-									line=line.substring(75);
-								}
+								output.write(line.substring(0, 75));
+								output.newLine();
+								line=line.substring(75);
 							}
 							countInvalidMailAddress++;
+							count++;
 						}
 						output.write(line);
 						output.newLine();
@@ -171,6 +166,26 @@ public class ReadCalendar
 		}
 		return count;
 	}
+	/**
+	 * Gets the contact name contained in the line
+	 * @param line
+	 * @return the contact name
+	 */
+	private String getContactName(String line)
+	{
+		int index1 = line.indexOf('"');
+		int index2 = line.indexOf('"', index1+1);
+		if(index1!=-1 && index2!=-1)
+		{
+			return line.substring(index1+1, index2);
+		}
+		return "Not Found";
+	}
+	/**
+	 * Check for groups errors in a specific line
+	 * @param line
+	 * @return true if it finds a group error
+	 */
 	private boolean checkGroupError(String line)
 	{
 		if(line.toUpperCase().contains("O=EXCHA"))
@@ -186,12 +201,7 @@ public class ReadCalendar
 	 */
 	private boolean checkOrganizer(String line)
 	{
-		String checkOrganizerName = "ORGANIZER;CN="+'"'+oldOrganizerName+'"'+":mailto:"+oldOrganizerMail;
-		if(checkOrganizerName.equals(line))
-		{
-			return true;
-		}
-		else if(checkOrganizerName.length()>= 75 && line.length()>=75 && checkOrganizerName.substring(0, 74).equals(line.substring(0,74)))
+		if(line.contains("ORGANIZER;CN="+'"'+oldOrganizerName+'"')||(line.contains("ORGANIZER;CN=")&&line.contains(":mailto:"+oldOrganizerMail)))
 		{
 			return true;
 		}
@@ -203,6 +213,6 @@ public class ReadCalendar
 	 */
 	private String changeOrganizer()
 	{
-		return "ORGANIZER;CN="+'"'+oldOrganizerName+'"'+":mailto:"+newOrganizer;
+		return "ORGANIZER;CN="+'"'+oldOrganizerName+'"'+":mailto:"+newOrganizerMail;
 	}
 }

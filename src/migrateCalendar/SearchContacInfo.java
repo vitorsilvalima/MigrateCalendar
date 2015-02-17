@@ -25,9 +25,14 @@ public class SearchContacInfo
 	 */
 	public SearchContacInfo(String contactLocation) throws IllegalArgumentException
 	{
-		if(contactLocation==null || contactLocation.equals(""))
+		if(contactLocation!=null && !contactLocation.equals(""))
 		{
 			contactFileLocation=contactLocation;
+		}
+		else
+		{
+			throw new IllegalArgumentException("The specified location for the contact information\n"
+					+ " file is not valid!");
 		}
 		setContactFile();
 	}
@@ -67,7 +72,7 @@ public class SearchContacInfo
 		}
 		if(contactMail.contains(""))
 		{
-			contactMail="none@langara.bc.ca";
+			contactMail="123Vitorteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeenone@langara.bc.ca";
 		}
 		scanContactList.close();
 		return contactMail;
